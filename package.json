@@ -1,0 +1,32 @@
+{
+  "name": "aws-s3-azure-blob-sync",
+  "version": "0.1.0",
+  "bin": {
+    "aws-s3-azure-blob-sync": "bin/aws-s3-azure-blob-sync.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk",
+    "build-lambda": "rm -rf build/; tsc src/*.ts --outDir build/"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.145",
+    "@types/jest": "^29.5.12",
+    "@types/node": "22.5.4",
+    "aws-cdk": "2.158.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.6.2"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.651.1",
+    "@azure/storage-blob": "^12.24.0",
+    "aws-cdk-lib": "2.158.0",
+    "constructs": "^10.0.0",
+    "dotenv": "^16.4.5",
+    "source-map-support": "^0.5.21"
+  }
+}
