@@ -6,7 +6,9 @@ import {Construct} from 'constructs';
 import * as path from "path";
 import {LogGroupClass, RetentionDays} from "aws-cdk-lib/aws-logs";
 import {S3EventSourceV2} from "aws-cdk-lib/aws-lambda-event-sources";
-import {RemovalPolicy} from "aws-cdk-lib";
+import {Duration, RemovalPolicy} from "aws-cdk-lib";
+import {EventBus, Rule} from "aws-cdk-lib/aws-events";
+import {LambdaFunction} from "aws-cdk-lib/aws-events-targets";
 
 interface AwsS3AzureBlobSyncStackProps extends cdk.StackProps {
   bucket: string;
@@ -64,11 +66,33 @@ export class AwsS3AzureBlobSyncStack extends cdk.Stack {
 
     const s3Bucket = s3.Bucket.fromBucketName(this, `${bucket}-source`, bucket);
     s3Bucket.grantRead(awsAzureSyncLambda);
+    s3Bucket.enableEventBridgeNotification();
 
-    awsAzureSyncLambda.addEventSource(
+
+    /*awsAzureSyncLambda.addEventSource(
       new S3EventSourceV2(s3Bucket, {
         events: [s3.EventType.OBJECT_CREATED]
       })
-    )
+    )*/
+    /** Trying Event Bus **/
+    const eventRule = new Rule(this, `${bucket}-object-created-rule`, {
+      ruleName: `${bucket}-object-created`,
+      eventPattern: {
+        source: ["aws.s3"],
+        detailType: ["Object Created"],
+        // resources: [s3Bucket.bucketArn],
+        detail: {
+          bucket: {
+            name: [
+              s3Bucket.bucketName
+            ]
+          }
+        }
+      }
+    });
+    eventRule.addTarget(new LambdaFunction(awsAzureSyncLambda, {
+      maxEventAge: Duration.hours(2),
+      retryAttempts: 2
+    }));
   }
 }

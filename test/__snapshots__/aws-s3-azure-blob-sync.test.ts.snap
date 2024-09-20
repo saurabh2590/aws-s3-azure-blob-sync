@@ -225,7 +225,44 @@ exports[`SQS Queue Created 1`] = `
       },
       "Type": "AWS::Lambda::LayerVersion",
     },
-    "somebucketsourceAllowBucketNotificationsToMyTestStackawsazuresynclambda25F128192EB95386": {
+    "somebucketobjectcreatedrule640D25AA": {
+      "Properties": {
+        "EventPattern": {
+          "detail": {
+            "bucket": {
+              "name": [
+                "some-bucket",
+              ],
+            },
+          },
+          "detail-type": [
+            "Object Created",
+          ],
+          "source": [
+            "aws.s3",
+          ],
+        },
+        "Name": "some-bucket-object-created",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "awsazuresynclambda91954E56",
+                "Arn",
+              ],
+            },
+            "Id": "Target0",
+            "RetryPolicy": {
+              "MaximumEventAgeInSeconds": 7200,
+              "MaximumRetryAttempts": 2,
+            },
+          },
+        ],
+      },
+      "Type": "AWS::Events::Rule",
+    },
+    "somebucketobjectcreatedruleAllowEventRuleMyTestStackawsazuresynclambda25F12819C131BE39": {
       "Properties": {
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
@@ -234,46 +271,22 @@ exports[`SQS Queue Created 1`] = `
             "Arn",
           ],
         },
-        "Principal": "s3.amazonaws.com",
-        "SourceAccount": {
-          "Ref": "AWS::AccountId",
-        },
+        "Principal": "events.amazonaws.com",
         "SourceArn": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":s3:::some-bucket",
-            ],
+          "Fn::GetAtt": [
+            "somebucketobjectcreatedrule640D25AA",
+            "Arn",
           ],
         },
       },
       "Type": "AWS::Lambda::Permission",
     },
     "somebucketsourceNotifications3FA98829": {
-      "DependsOn": [
-        "somebucketsourceAllowBucketNotificationsToMyTestStackawsazuresynclambda25F128192EB95386",
-      ],
       "Properties": {
         "BucketName": "some-bucket",
         "Managed": false,
         "NotificationConfiguration": {
-          "LambdaFunctionConfigurations": [
-            {
-              "Events": [
-                "s3:ObjectCreated:*",
-              ],
-              "LambdaFunctionArn": {
-                "Fn::GetAtt": [
-                  "awsazuresynclambda91954E56",
-                  "Arn",
-                ],
-              },
-            },
-          ],
+          "EventBridgeConfiguration": {},
         },
         "ServiceToken": {
           "Fn::GetAtt": [

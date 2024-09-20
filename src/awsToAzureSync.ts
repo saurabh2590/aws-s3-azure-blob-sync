@@ -1,7 +1,7 @@
-import {S3Handler} from "aws-lambda";
 import {GetObjectCommand, S3Client} from "@aws-sdk/client-s3";
 import {BlobServiceClient, BlockBlobClient, StorageSharedKeyCredential} from "@azure/storage-blob";
 import {Readable, Stream} from "node:stream";
+import {EventBridgeHandler} from "aws-lambda/trigger/eventbridge";
 
 /** Create AWS Client **/
 const s3Client = new S3Client();
@@ -25,8 +25,8 @@ const blobServiceClient = new BlobServiceClient(
 );
 /** End Creating Azure Blob Client **/
 
-export const handler: S3Handler = async (event, _context, _callback) => {
-  const {bucket: {name}, object: {key}} = event.Records[0].s3;
+export const handler: EventBridgeHandler<any, any, any> = async (event, _context, _callback) => {
+  const {detail: {bucket: {name}, object: {key}}} = event;
   const getObjectCommand = new GetObjectCommand({Bucket: name, Key: key});
   const { Body , ContentType} = await s3Client.send(getObjectCommand);
 
@@ -38,6 +38,7 @@ export const handler: S3Handler = async (event, _context, _callback) => {
   // Values used are default values
   await blockBlobClient.uploadStream(Body as Readable, 8 * 1024 * 1024, 5, {
     blobHTTPHeaders: {
+      // @ts-ignore
       blobContentType: ContentType
     }
   });
