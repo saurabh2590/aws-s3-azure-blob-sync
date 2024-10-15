@@ -27,3 +27,5 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
   * `npm run build-lambda` 
 * Deploy Lambda
   * `npm run cdk -- --profile ${AWS_PROFILE} deploy AwsS3AzureBlobSyncStack`
+* Destroy Lambda
+  * * `npm run cdk -- --profile ${AWS_PROFILE} destroy AwsS3AzureBlobSyncStack`
