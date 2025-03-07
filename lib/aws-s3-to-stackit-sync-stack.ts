@@ -5,26 +5,27 @@ import * as logs from "aws-cdk-lib/aws-logs";
 import {Construct} from 'constructs';
 import * as path from "path";
 import {LogGroupClass, RetentionDays} from "aws-cdk-lib/aws-logs";
-import {S3EventSourceV2} from "aws-cdk-lib/aws-lambda-event-sources";
 import {Duration, RemovalPolicy} from "aws-cdk-lib";
-import {EventBus, Rule} from "aws-cdk-lib/aws-events";
+import {Rule} from "aws-cdk-lib/aws-events";
 import {LambdaFunction} from "aws-cdk-lib/aws-events-targets";
 
-interface AwsS3AzureBlobSyncStackProps extends cdk.StackProps {
+export type SyncStackProps = {
   bucket: string;
-  azureStorageAccountName: string;
-  azureStorageAccountKey: string;
-  azureContainerName: string;
+  targetBucket: string;
+  targeBucketAccessKeyId: string;
+  targetBucketSecretAccessKey: string;
 }
 
-export class AwsS3AzureBlobSyncStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props: AwsS3AzureBlobSyncStackProps) {
+export type AwsS3ToStackitSyncStackProps = cdk.StackProps & SyncStackProps
+
+export class AwsS3ToStackitSyncStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props: AwsS3ToStackitSyncStackProps) {
     super(scope, id, props);
-    const {bucket, azureContainerName, azureStorageAccountName, azureStorageAccountKey} = props
+    const {bucket, targetBucketSecretAccessKey, targetBucket, targeBucketAccessKeyId} = props
     /**
      * Layers to publish Node Modules functions
      */
-    const nodeModulesLayer = new lambda.LayerVersion(
+    /*const nodeModulesLayer = new lambda.LayerVersion(
       this,
       "node-modules-layer",
       {
@@ -35,7 +36,7 @@ export class AwsS3AzureBlobSyncStack extends cdk.Stack {
         license: "Apache-2.0",
         description: "Node Modules layer for the Lambda",
       }
-    );
+    );*/
 
     const awsAzureSyncLambdaLogGroup = new logs.LogGroup(
       this,
@@ -53,15 +54,15 @@ export class AwsS3AzureBlobSyncStack extends cdk.Stack {
       code: lambda.Code.fromAsset("build"),
       timeout: cdk.Duration.seconds(60),
       logGroup: awsAzureSyncLambdaLogGroup,
-      layers: [nodeModulesLayer],
+      //layers: [nodeModulesLayer],
       memorySize: 128,
       environment: {
-        AZURE_STORAGE_ACCOUNT_NAME: azureStorageAccountName,
-        AZURE_STORAGE_ACCOUNT_KEY: azureStorageAccountKey,
-        AZURE_CONTAINER_NAME: azureContainerName
+        TARGET_BUCKET: targetBucket,
+        TARGET_BUCKET_ACCESS_KEY_ID: targeBucketAccessKeyId,
+        TARGET_BUCKET_SECRET_ACCESS_KEY: targetBucketSecretAccessKey
       },
-      handler: "awsToAzureSync.handler",
-      functionName: `s3-${bucket}-azure-${azureContainerName}-sync`
+      handler: "awsToStackit.handler",
+      functionName: `aws-${bucket}-to-stackit-${targetBucket}`
     });
 
     const s3Bucket = s3.Bucket.fromBucketName(this, `${bucket}-source`, bucket);

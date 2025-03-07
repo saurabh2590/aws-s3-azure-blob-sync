@@ -21,11 +21,9 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 * Create `.env` file with the correct values as in `.env.example` file 
 * BootStrap the CDK in target region if doing it first time.
   * `npm run cdk -- --profile ${AWS_PROFILE} bootstrap aws://${AWS_ACCOUNT_ID}/${AWS_REGION}` 
-* Run build layers script to generate NodeJS layers
-  * `./build_layers.sh`
 * Run build to generate compiled lambda code
   * `npm run build-lambda` 
 * Deploy Lambda
-  * `npm run cdk -- --profile ${AWS_PROFILE} deploy AwsS3AzureBlobSyncStack`
+  * `npm run cdk -- --profile ${AWS_PROFILE} deploy AwsS3ToStackitSyncStack`
 * Destroy Lambda
-  * * `npm run cdk -- --profile ${AWS_PROFILE} destroy AwsS3AzureBlobSyncStack`
+  * * `npm run cdk -- --profile ${AWS_PROFILE} destroy AwsS3ToStackitSyncStack`
